@@ -82,14 +82,15 @@ document.querySelectorAll('.js-add-to-cart')
         });
       }
 
+      let cartQuantity = 0;
+      cart.forEach((item)=>{
+        cartQuantity += item.quantity;
+      })
+
+      document.querySelector('.js-cart-quantity')
+      .innerHTML = cartQuantity;
 
 
-
-      console.log(cart);
     })
   })
 
-const testDiv = document.querySelector('#js-test-div');
-console.log(testDiv.dataset);
-console.log(testDiv.dataset.myData);
-console.log(testDiv.dataset.productName);
