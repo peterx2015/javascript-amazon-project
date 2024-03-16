@@ -12,38 +12,38 @@ const deliveryDate = today.add(7, 'days');
 console.log(`delivery day is: ${deliveryDate}`);
 console.log(deliveryDate.format('dddd, MMMM D'));
 
+function renderOrderSummary() {
+    let cartSummaryHTML = '';
 
-let cartSummaryHTML = '';
+    cart.forEach((cartItem) => {
 
-cart.forEach((cartItem) => {
+        const productId = cartItem.productId;
+        let matchingProduct;
+        products.forEach((product) => {
+            if (product.id === productId) {
+                matchingProduct = product;
+            }
+        })
 
-    const productId = cartItem.productId;
-    let matchingProduct;
-    products.forEach((product) => {
-        if (product.id === productId) {
-            matchingProduct = product;
-        }
-    })
+        const deliveryOptionId = cartItem.deliveryOptionId;
+        let deliveryOption;//储存选中的快递选项
 
-    const deliveryOptionId = cartItem.deliveryOptionId;
-    let deliveryOption;//储存选中的快递选项
+        deliveryOptions.forEach((option) => {
+            if (option.id === deliveryOptionId) {
+                deliveryOption = option;
+            }
+        })
 
-    deliveryOptions.forEach((option)=>{
-        if (option.id === deliveryOptionId) {
-            deliveryOption = option;
-        }
-    })
+        //根据选中的快递选项deliveryOption中的快递时间，计算格式化后的快递日期
+        const today = dayjs();
+        const deliveryDate = today.add(
+            deliveryOption.deliveryDays, 'days'
+        )
+        const dateString = deliveryDate.format('dddd, MMMM D');
+        console.log(deliveryOption);
 
-    //根据选中的快递选项deliveryOption中的快递时间，计算格式化后的快递日期
-    const today = dayjs();
-    const deliveryDate = today.add(
-        deliveryOption.deliveryDays, 'days'
-    )
-    const dateString = deliveryDate.format('dddd, MMMM D');
-    console.log(deliveryOption);
-
-    cartSummaryHTML +=
-        `
+        cartSummaryHTML +=
+            `
     <div class="cart-item-container js-cart-item-container-${matchingProduct.id}">
             <div class="delivery-date">
               Delivery date: ${dateString}
@@ -79,35 +79,35 @@ cart.forEach((cartItem) => {
                 </div>
                
                  <!-- 插入 -->
-                ${deliveryOptionsHTML(matchingProduct, cartItem )}
+                ${deliveryOptionsHTML(matchingProduct, cartItem)}
 
                 
               </div>
             </div>
           </div>
     `;
-})
+    })
 
-function deliveryOptionsHTML(matchingProduct, cartItem) {
-    let html = '';
+    function deliveryOptionsHTML(matchingProduct, cartItem) {
+        let html = '';
 
-    deliveryOptions.forEach((deliveryOption) => {
-        const today = dayjs();
-        const deliveryDate = today.add(
-            deliveryOption.deliveryDays, 'days'
-        )
-        const dateString = deliveryDate.format('dddd, MMMM D');
-        const priceString  = deliveryOption.priceCents===0 ? 
-            'FREE' 
-            : 
-            `$${formatCurrency(deliveryOption.priceCents)} -`;
+        deliveryOptions.forEach((deliveryOption) => {
+            const today = dayjs();
+            const deliveryDate = today.add(
+                deliveryOption.deliveryDays, 'days'
+            )
+            const dateString = deliveryDate.format('dddd, MMMM D');
+            const priceString = deliveryOption.priceCents === 0 ?
+                'FREE'
+                :
+                `$${formatCurrency(deliveryOption.priceCents)} -`;
 
             const isChecked = deliveryOption.id === cartItem.deliveryOptionId;
 
 
-        html +=     
-            `<div class="delivery-option js-delivery-option" data-product-id="${matchingProduct.id}" data-delivery-option-id = "${deliveryOption.id}">
-            <input type="radio" ${isChecked?'checked':''}
+            html +=
+                `<div class="delivery-option js-delivery-option" data-product-id="${matchingProduct.id}" data-delivery-option-id = "${deliveryOption.id}">
+            <input type="radio" ${isChecked ? 'checked' : ''}
             class="delivery-option-input"
             name="delivery-option-${matchingProduct.id}">
             <div>
@@ -118,32 +118,37 @@ function deliveryOptionsHTML(matchingProduct, cartItem) {
                    ${priceString} Shipping
                 </div>
              </div>
-         </div>` 
-    })
-    return html;
+         </div>`
+        })
+        return html;
+    }
+
+
+    document.querySelector('.js-order-summary')
+        .innerHTML = cartSummaryHTML;
+
+    document.querySelectorAll('.js-delete-link')
+        .forEach((link) => {
+            link.addEventListener('click', () => {
+                const productId = link.dataset.productId;
+                removeFromCart(productId);
+                const container = document.querySelector(`.js-cart-item-container-${productId}`)
+                container.remove();
+
+                console.log(link.dataset.productId);
+                console.log(cart);
+            })
+        })
+
+    document.querySelectorAll('.js-delivery-option')
+        .forEach((element) => {
+            element.addEventListener('click', () => {
+                const { productId, deliveryOptionId } = element.dataset;
+                updateDeliveryOption(productId, deliveryOptionId)
+                renderOrderSummary();
+            })
+        })
+
 }
 
-
-document.querySelector('.js-order-summary')
-    .innerHTML = cartSummaryHTML;
-
-document.querySelectorAll('.js-delete-link')
-    .forEach((link) => {
-        link.addEventListener('click', () => {
-            const productId = link.dataset.productId;
-            removeFromCart(productId);
-            const container = document.querySelector(`.js-cart-item-container-${productId}`)
-            container.remove();
-
-            console.log(link.dataset.productId);
-            console.log(cart);
-        })
-    }) 
-
-document.querySelectorAll('.js-delivery-option')
-    .forEach((element)=>{
-        element.addEventListener('click',()=>{
-            const {productId, deliveryOptionId}= element.dataset;
-            updateDeliveryOption(productId, deliveryOptionId)
-        })
-    })
+renderOrderSummary();
