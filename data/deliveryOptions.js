@@ -12,3 +12,15 @@ export const deliveryOptions = [{
     deliveryDays: 1,
     priceCents: 999
 }] 
+
+export function getDeliveryOption(deliveryOptionId) {
+    let deliveryOption;//储存选中的快递选项
+
+    deliveryOptions.forEach((option) => {
+        if (option.id === deliveryOptionId) {
+            deliveryOption = option;
+        }
+    })
+
+    return deliveryOption;
+}
