@@ -28,7 +28,6 @@ describe('test suite: renderOrderSummary', () => {
             ]);
         });
         loadFromStorage();
-
         renderOrderSummary();
     });
 
@@ -99,5 +98,30 @@ describe('test suite: renderOrderSummary', () => {
 
         
     });
+    
+    //16j
+    it('should update the deliveryOption', () => {
+        document.querySelector(`.js-delivery-option-${productId1}-3`).click();
+
+        expect(
+        document.querySelector(`.js-delivery-input-${productId1}-3`).checked
+        ).toEqual(true)
+
+        expect(cart.length).toEqual(2)
+        expect(cart[0].productId).toEqual(productId1);
+        expect(cart[0].deliveryOptionId).toEqual('3')
+
+        expect(
+            document.querySelector('.js-payment-shipping-price').innerText
+        ).toEqual('$14.98')
+        expect(
+            document.querySelector('.js-payment-total-price').innerText
+        ).toEqual('$63.50')
+       
+
+
+    });
+       
 
 });
+

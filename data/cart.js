@@ -1,5 +1,7 @@
 export let cart;
 loadFromStorage();
+import { getDeliveryOption } from './deliveryOptions.js';
+
 export function loadFromStorage() {
     cart = JSON.parse(localStorage.getItem('cart')) || [{
         productId: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
@@ -59,16 +61,26 @@ export function removeFromCart(productId) {
     saveToStorage();
 
 }
-
+//16l 16m
 export function updateDeliveryOption(productId, deliveryOptionId) {
-    let matchingItem;
+    if(!getDeliveryOption(deliveryOptionId)){
+        return //检测如果deliveryOptionId不存在，则return
+    }   
 
-    cart.forEach((cartItem) => {
+   cart.forEach((cartItem)=>{
         if (cartItem.productId === productId) {
-            matchingItem = cartItem;
+            let matchingItem;
+
+            cart.forEach((cartItem) => {
+                if (cartItem.productId === productId) {
+                    matchingItem = cartItem;
+                }
+            })
+            matchingItem.deliveryOptionId = deliveryOptionId
+            saveToStorage();
         }
-    })
-    matchingItem.deliveryOptionId = deliveryOptionId
-    saveToStorage();
+   })
+
+    
 
 }
